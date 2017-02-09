@@ -6,7 +6,7 @@ from collections import namedtuple
 import derive_variables as der_var
 
 var_spec = namedtuple('var_spec', 'fn cubes extra')
-VARIABLES = {
+VARIABLES_LOOKUP = {
     'clt':   var_spec(cubes_in=['clt'],            fn=None, extra=None),        
     'clwvi': var_spec(cubes_in=['clwvi'],          fn=None, extra=None),        
     'dos':   var_spec(cubes_in=['mrso', 'mrsofc'], fn=der_var.calc_dos, extra=None),        
@@ -16,12 +16,13 @@ VARIABLES = {
     'toz':   var_spec(cubes_in=['tro3', 'ps'],     fn=der_var.calc_toz, extra=None),
     'tro3':  var_spec(cubes_in=['tro3'],           fn=None, extra=None),        
 }
+   
 
 def preprocess(project_info, files):
     for diagnostic in project_info['DIAGNOSTICS']:
 
         for variable in diagnostic['variables']:
-            var_spec = VARIABLES[variable]
+            var_spec = VARIABLES_LOOKUP[variable]
 
             for model in project_info['MODELS']:
 
@@ -34,7 +35,13 @@ def preprocess(project_info, files):
                 if var_spec.fn != None:
                     # Derive variable
                     derive_var = var_spec.fn
-                    cube = derive_var(cubes, var_spec.extra)
+                    
+                    if var_spec.extra != None:
+                        extra_args = None
+                    else:
+                        extra_args = (project, model)
+                        
+                    cube = derive_var(cubes, extra_args)
                 else:
                     cube, = cubes
                 

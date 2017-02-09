@@ -1,16 +1,21 @@
+"""
+Miscellaneous functions for deriving variables.
+
+"""
+
 import iris
 import cf_units
 
 import ozone_column.toz
 
 
-def calc_dos(cubes):
+def calc_dos(cubes, **kwargs):
     mrso_cube = cubes.extract('mrso')
     msfoc_cube = cubes.extract('mrsofc')
-    pass
+    #some processing
 
 
-def calc_lwp(cubes, project, model):
+def calc_lwp(cubes, extra_args):
     """
     Liquid water path is calculated by subtracting clivi (ice water) from clwvi
     (condensed water path).
@@ -20,8 +25,7 @@ def calc_lwp(cubes, project, model):
     
     Args:
         * cubes: cubelist containing clwvi_cube and clivi_cube
-        * project
-        * model
+        * extra_args: tuple containing
     Returns:
         Cube containing liquid water path.
 
@@ -29,7 +33,9 @@ def calc_lwp(cubes, project, model):
     # TODO: find out correct names for clwvi/clivi
     clwvi_cube = cubes.extract('clwvi')
     clivi_cube = cubes.extract('clivi')
-
+    model = kwargs['model']
+    project = kwargs['project']
+    
     BAD_MODELS = ['CESM1-CAM5-1-FV2', 'CESM1-CAM5', 'CMCC-CESM', 'CMCC-CM',
                   'CMCC-CMS', 'IPSL-CM5A-MR', 'IPSL-CM5A-LR', 'IPSL-CM5B-LR',
                   'CCSM4', 'IPSL-CM5A-MR', 'MIROC-ESM', 'MIROC-ESM-CHEM',
@@ -45,11 +51,11 @@ def calc_lwp(cubes, project, model):
     else:
         lwp_cube = clwvi_cube - clivi_cube
 
-    # TODO: Rename cube lwp_cube.name('liquid_water_path')
-    # TODO: Fix units? lwp_cube.units = cf_units.Unit('kg')
+    # TODO: Rename cube lwp_cube.name('liquid_water_path') here?
+    # TODO: Fix units? lwp_cube.units = cf_units.Unit('kg') here?
     return lwp_cube
 
 
-def calc_toz(cubes):
+def calc_toz(cubes, **kwargs):
     return ozone_column.toz.total_column_ozone(cubes)
 

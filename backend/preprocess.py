@@ -26,7 +26,7 @@ def preprocess(project_info, files):
             for model in project_info['MODELS']:
 
                 # Load in required cubes
-                cubes = iris.load(files, var_spec.cubes)
+                cubes = iris.load(files, var_spec.cubes_in)
 
                 # Extract time
                 cubes = [extract_time(cube) for cube in cubes]
